@@ -16,6 +16,10 @@ public class JavaLineComment extends Comment{
         super(tokenRange, content);
     }
 
+    @Override
+    public boolean isLineComment() {
+        return true;
+    }
 
     @Override
     public <R, A> R accept(GenericVisitor<R, A> v, A arg) {

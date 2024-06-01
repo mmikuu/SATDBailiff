@@ -8,10 +8,13 @@ import edu.rit.se.util.KnownParserException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -69,9 +72,17 @@ public class RepositoryCommitReference {
      * @return a mapping of files to the SATD Occurrences in each of those files
      */
     public Map<String, RepositoryComments> getFilesToSATDOccurrences(
-            SATDDetector detector, List<String> filesToSearch) {
-        final TreeWalk thisRepoWalker = GitUtil.getTreeWalker(this.gitInstance, this.commit);
+            SATDDetector detector, List<String> filesToSearch) throws GitAPIException, IOException {
+//        final TreeWalk thisRepoWalker = GitUtil.getTreeWalker(this.gitInstance, this.commit);
         final Map<String, RepositoryComments> filesToSATDMap = new HashMap<>();
+//
+        final TreeWalk thisRepoWalker = new TreeWalk(this.gitInstance.getRepository());
+        String commitHash = this.commit.getName();
+        checkoutCommit(commitHash);
+
+        thisRepoWalker.addTree(this.commit.getTree());
+        thisRepoWalker.setRecursive(true);
+
         try {
             // Walk through each Java file in the repository at the time of the diff
             while (thisRepoWalker.next()) {
@@ -79,28 +90,31 @@ public class RepositoryCommitReference {
                 final String curFileName = thisRepoWalker.getPathString();
 
                 if( filesToSearch.contains(curFileName)) {
-                    // Get loader to load file contents into memory
-                    final ObjectLoader fileLoader = this.gitInstance.getRepository()
-                            .open(thisRepoWalker.getObjectId(0));
-                    final RepositoryComments comments = new RepositoryComments();
-                    try {
-                        comments.addComments(
-                                JavaParseUtil.parseFileForComments(fileLoader.openStream(), curFileName).stream()
-                                        // Ignore JavaDocs and Source Code
-                                        .filter(gc ->
-                                                !gc.getCommentType().equals(GroupedComment.TYPE_JAVADOC))
-                                        .filter(gc ->
-                                                !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
-                                        .filter(gc -> detector.isSATD(gc.getComment()))
-                                        .collect(Collectors.toList()));
-                    } catch (KnownParserException e) {
-                        comments.addParseErrorFile(e.getFileName());
+                    if (thisRepoWalker.getObjectId(0) != null) {
+                        // Get loader to load file contents into memory
+                        final ObjectLoader fileLoader = this.gitInstance.getRepository()
+                                .open(thisRepoWalker.getObjectId(0));
+                        final RepositoryComments comments = new RepositoryComments();
+                        try {
+                            comments.addComments(
+                                    JavaParseUtil.parseFileForComments(fileLoader.openStream(), curFileName).stream()
+                                            // Ignore JavaDocs and Source Code
+                                            .filter(gc ->
+                                                    !gc.getCommentType().equals(GroupedComment.TYPE_JAVADOC))
+                                            .filter(gc ->
+                                                    !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
+                                            .filter(gc -> detector.isSATD(gc.getComment()))
+                                            .collect(Collectors.toList()));
+
+                        } catch (KnownParserException e) {
+                            comments.addParseErrorFile(e.getFileName());
+                        }
+                        // Parse Java file for SATD and add it to the map
+                        filesToSATDMap.put(
+                                curFileName,
+                                comments
+                        );
                     }
-                    // Parse Java file for SATD and add it to the map
-                    filesToSATDMap.put(
-                            curFileName,
-                            comments
-                    );
                 }
             }
         } catch (MissingObjectException | IncorrectObjectTypeException | CorruptObjectException e) {
@@ -137,5 +151,12 @@ public class RepositoryCommitReference {
             return this.getCommit().hashCode() == ((RepositoryCommitReference) obj).getCommit().hashCode();
         }
         return false;
+    }
+
+    private void checkoutCommit(String commitHash) throws GitAPIException, RefNotFoundException, GitAPIException {
+        // チェックアウトコマンドを実行
+        this.gitInstance.checkout()
+                .setName(commitHash)
+                .call();
     }
 }

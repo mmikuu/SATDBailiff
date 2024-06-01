@@ -10,7 +10,9 @@ import edu.rit.se.satd.model.SATDInstance;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +39,7 @@ public class RepositoryDiffMiner {
      * @throws IllegalStateException thrown if the DiffMiner object has not been fully
      * configured before running
      */
-    public SATDDifference mineDiff() {
+    public SATDDifference mineDiff() throws GitAPIException, IOException {
         final SATDDifference diff = new SATDDifference(
                 this.secondRepo.getProjectName(),
                 this.secondRepo.getProjectURI(),

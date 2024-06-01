@@ -17,6 +17,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,6 +109,7 @@ public class SATDMiner {
      */
     public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer) {
         if( commitRef == null ) {
+            System.out.println("erroです");
             this.status.setError();
             return;
         }
@@ -122,7 +124,13 @@ public class SATDMiner {
                 .map(pair -> new RepositoryDiffMiner(pair.parentRepo, pair.repo, this.satdDetector))
                 .map(repositoryDiffMiner -> {
                     this.status.setDisplayWindow(repositoryDiffMiner.getDiffString());
-                    return repositoryDiffMiner.mineDiff();
+                    try {
+                        return repositoryDiffMiner.mineDiff();
+                    } catch (GitAPIException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 })
                 .map(this::mapInstancesInDiffToPriorInstances)
                 .forEach(diff -> {

@@ -12,6 +12,7 @@ import edu.rit.se.util.KnownParserException;
 import edu.rit.se.util.SimilarityUtil;
 import javafx.util.Pair;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -33,10 +34,13 @@ public class OldFileDifferencer extends FileDifferencer {
 
     private final SATDDetector detector;
 
+    private Git gitInstance;
+
     private final List<DiffEntry> otherDiffEntries;
 
     OldFileDifferencer(Git gitInstance, RevCommit newCommit, SATDDetector detector, List<DiffEntry> otherDiffEntries) {
         super(gitInstance);
+        this.gitInstance = gitInstance;
         this.newCommit = newCommit;
         this.detector = detector;
         // Remove all entries that detail removed files --
@@ -57,6 +61,7 @@ public class OldFileDifferencer extends FileDifferencer {
 
         switch (diffEntry.getChangeType()) {
             case RENAME:
+                checkoutCommit(this.newCommit.getName());
                 final RepositoryComments comInNewRepository =
                         this.getCommentsInFileInNewRepository(diffEntry.getNewPath());
                 final GroupedComment newComment = comInNewRepository.getComments().stream()
@@ -270,5 +275,14 @@ public class OldFileDifferencer extends FileDifferencer {
         }
         // If there is, then return only those instances
         return instancesWithSameMethod;
+    }
+    private void checkoutCommit(String commitHash) {
+        try {
+            // 指定されたコミットにチェックアウト
+            this.gitInstance.checkout().setName(commitHash).call();
+            System.out.println("Checked out to commit: " + commitHash);
+        } catch (GitAPIException e) {
+            e.printStackTrace();
+        }
     }
 }

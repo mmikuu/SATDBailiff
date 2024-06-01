@@ -1,6 +1,7 @@
 package edu.rit.se.util;
 
 import com.github.javaparser.TokenRange;
+import com.github.javaparser.ast.comments.BlockComment;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
@@ -10,6 +11,12 @@ public class JavaBlockComment extends Comment{
     public JavaBlockComment(TokenRange tokenRange, String content) {
         super(tokenRange, content);
     }
+
+    @Override
+    public boolean isBlockComment() {
+        return true;
+    }
+
 
 
     @Override

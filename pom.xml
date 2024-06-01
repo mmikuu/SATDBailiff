@@ -14,8 +14,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>11</source><!--前は8 -->
+                    <target>11</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -42,10 +42,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>HelloFX</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>17</version>
+        </dependency>
         <!-- Local SATD Detector Implementation from jar -->
         <dependency>
             <groupId>satd_detector</groupId>
@@ -54,12 +67,19 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/satd_detector.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>ishio</groupId>
+            <artifactId>CommentLister</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/CommentLister.jar</systemPath>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>5.2.2.201904231744-r</version>
+            <version>5.2.2.201904231744-r</version><!--5.2.2.201904231744-r -->
         </dependency>
 
         <!-- JGIT forces inclusion of SLF4J, so this No-operation is included to prevent errors without

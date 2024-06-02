@@ -246,6 +246,7 @@ public class OldFileDifferencer extends FileDifferencer {
     }
 
     private List<SATDInstanceInFile> getOtherInstancesInCommitFiles(GroupedComment commentToMatch, String curPath) {
+        checkoutCommit(this.newCommit.getName());
         final List<SATDInstanceInFile> allInstances = this.otherDiffEntries.stream()
                 .filter(diffEntry -> !diffEntry.getOldPath().equals(curPath))
                 .map(diffEntry -> new Pair(diffEntry, this.getCommentsInFileInNewRepository(diffEntry.getNewPath())))

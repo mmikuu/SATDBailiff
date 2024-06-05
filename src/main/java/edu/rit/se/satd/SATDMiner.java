@@ -17,6 +17,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.builder.Diff;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import java.io.File;
@@ -107,7 +108,7 @@ public class SATDMiner {
      * @param commitRef a list of supplied diff references to be diffed for SATD
      * @param writer an OutputWriter that will handle the output of the miner
      */
-    public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer) {
+    public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer, int startNum, int endNum) {
         if( commitRef == null ) {
             System.out.println("erroです");
             this.status.setError();
@@ -117,10 +118,12 @@ public class SATDMiner {
 
         final List<DiffPair> allDiffPairs =  this.getAllDiffPairs(commitRef);
 
-        this.status.beginMiningSATD();
-        this.status.setNDiffsPromised(allDiffPairs.size());
+        final List<DiffPair> validDiffPairs = getValidPairs(allDiffPairs,startNum,endNum);
 
-        allDiffPairs.stream()
+        this.status.beginMiningSATD();
+        this.status.setNDiffsPromised(validDiffPairs.size());
+
+        validDiffPairs.stream()
                 .map(pair -> new RepositoryDiffMiner(pair.parentRepo, pair.repo, this.satdDetector))
                 .map(repositoryDiffMiner -> {
                     this.status.setDisplayWindow(repositoryDiffMiner.getDiffString());
@@ -314,5 +317,17 @@ public class SATDMiner {
             }
             return -1;
         }
+    }
+
+    public List<DiffPair> getValidPairs(List<DiffPair> allDiffPairs ,int startNum ,int endNum){
+        List<DiffPair> validPairs = new ArrayList<>();
+        int times = 0;
+         for (DiffPair diffPair : allDiffPairs) {
+             if(startNum <= times && endNum >= times){
+                 validPairs.add(diffPair);
+             }
+             times = times+1;
+         }
+         return validPairs;
     }
 }

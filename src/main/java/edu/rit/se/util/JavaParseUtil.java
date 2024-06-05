@@ -119,7 +119,7 @@ public class JavaParseUtil {
         try (JsonGenerator gen = new JsonFactory().createGenerator(new FileOutputStream("testOutput.json"))) {
 
             String f = "repos/mmikuu/SampleTestForCheckSatd/"+fileName;
-
+//            String f = "repos/eclipse-jdt/eclipse.jdt.core/"+fileName;
             String fileSplit[] = fileName.split("/");
             fileName = fileSplit[fileSplit.length-1];
 

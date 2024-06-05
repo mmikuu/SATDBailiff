@@ -20,6 +20,7 @@ public class SATDInstanceInFile {
     public int hashCode() {
         return (this.fileName + this.comment.getComment() +
                 this.comment.getCommentType() + this.comment.getContainingClass() +
+                this.comment.getStartLine() + this.comment.getEndLine() +
                 this.comment.getContainingMethod()).hashCode();
     }
 
@@ -40,5 +41,9 @@ public class SATDInstanceInFile {
                 this.comment.getContainingClass(),
                 this.comment.getContainingMethod(),
                 this.comment.getComment());
+    }
+
+    public GroupedComment getGroupComment(){
+        return this.comment;
     }
 }

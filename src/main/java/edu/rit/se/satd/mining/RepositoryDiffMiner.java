@@ -95,6 +95,26 @@ public class RepositoryDiffMiner {
         final List<SATDInstance> newInstances =
                 mineDiffsFromMappedSATDInstances(cToCDiff, newSATDMappings, false);
 
+//        oldInstances.forEach(instance -> {
+//                    System.out.println("========================");
+//                    System.out.println(instance.getInstance(false).getGroupComment().getComment());
+//                    System.out.println(instance.getInstance(false).getGroupComment().getLine());
+//                    System.out.println("========================");
+//                    System.out.println(instance.getInstance(true).getGroupComment().getComment());
+//                    System.out.println(instance.getInstance(true).getGroupComment().getLine());
+//                });
+//
+//        newInstances.forEach(instance -> {
+//                    System.out.println("========================");
+//                    System.out.println(instance.getInstance(false).getGroupComment().getComment());
+//                    System.out.println(instance.getInstance(false).getGroupComment().getLine());
+//                    System.out.println("========================");
+//                    System.out.println(instance.getInstance(true).getGroupComment().getComment());
+//                    System.out.println(instance.getInstance(true).getGroupComment().getLine());
+//                });
+//
+//
+//        });
         diff.addSATDInstances(oldInstances);
         diff.addSATDInstances(newInstances);
 

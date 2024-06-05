@@ -55,6 +55,17 @@ public class SATDInstance {
     public String toString(){
         return "newInstance:"+this.newInstance.toString()+"oldInstance:"+this.oldInstance.toString();
     }
+
+    public SATDInstanceInFile getInstance(boolean isUse){
+        if(isUse){
+            return this.oldInstance;
+        }else{
+            return this.newInstance;
+        }
+
+    }
+
+
     public enum SATDResolution {
         FILE_REMOVED,
         FILE_PATH_CHANGED,
@@ -71,7 +82,7 @@ public class SATDInstance {
             return this.oldInstance.equals(((SATDInstance) obj).oldInstance) &&
                     this.newInstance.equals(((SATDInstance) obj).newInstance) &&
                     this.resolution.equals(((SATDInstance) obj).resolution) &&
-                    this.duplicationId == ((SATDInstance) obj).duplicationId;
+                    this.duplicationId == ((SATDInstance) obj).duplicationId ;
         }
         return false;
     }
@@ -83,4 +94,6 @@ public class SATDInstance {
                 this.resolution.hashCode() +
                 this.duplicationId;
     }
+
+
 }

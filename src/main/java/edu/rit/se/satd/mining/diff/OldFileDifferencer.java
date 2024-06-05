@@ -282,7 +282,6 @@ public class OldFileDifferencer extends FileDifferencer {
         try {
             // 指定されたコミットにチェックアウト
             this.gitInstance.checkout().setName(commitHash).call();
-            System.out.println("Checked out to commit: " + commitHash);
         } catch (GitAPIException e) {
             e.printStackTrace();
         }

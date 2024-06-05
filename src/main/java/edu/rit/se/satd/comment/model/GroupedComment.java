@@ -231,4 +231,8 @@ public class GroupedComment implements Comparable {
         }
         return newComment;
     }
+
+    public int getLine(){
+        return this.startLine;
+    }
 }

@@ -48,6 +48,11 @@ public class JavaParseUtil {
 //                        .iterator()
 //                : Collections.emptyIterator();
 
+//        while (allComments.hasNext()) {
+//            GroupedComment comment = allComments.next();
+//            System.out.println(comment.getComment());
+//        }
+
         TreeSet<Comment> comments = new TreeSet<>((c1, c2) -> {
             int lineComparison = Integer.compare(c1.getBegin().get().line, c2.getBegin().get().line);
             return lineComparison != 0 ? lineComparison : c1.getContent().compareTo(c2.getContent());
@@ -68,6 +73,9 @@ public class JavaParseUtil {
                             .sorted()
                             .iterator();
         }
+
+
+
 
         final List<GroupedComment> groupedComments = new ArrayList<>();
         GroupedComment previousComment = null;
@@ -110,7 +118,7 @@ public class JavaParseUtil {
 
         try (JsonGenerator gen = new JsonFactory().createGenerator(new FileOutputStream("testOutput.json"))) {
 
-            String f = "repos/mmikuu/CalcTestSatd/"+fileName;
+            String f = "repos/mmikuu/SampleTestForCheckSatd/"+fileName;
 
             String fileSplit[] = fileName.split("/");
             fileName = fileSplit[fileSplit.length-1];

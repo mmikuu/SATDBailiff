@@ -104,7 +104,11 @@ public class RepositoryCommitReference {
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_JAVADOC))
                                             .filter(gc ->
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
-                                            .filter(gc -> UseCaseOne.runSATD(gc.getComment()))
+                                            .filter(gc -> UseCaseOne.runSATD(gc.getComment().replace("//","").replace("/*","").replace("*/","").replace("*","")))
+//                                            .peek(gc-> {
+//                                                System.out.println("========aaa===========");
+//                                                System.out.println(gc.getComment()+gc.getStartLine());
+//                                            })
                                             .collect(Collectors.toList()));
 
                         } catch (KnownParserException e) {

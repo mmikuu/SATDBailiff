@@ -41,4 +41,9 @@ public class SATDDifference {
         return this;
     }
 
+    public List<SATDInstance> getInstanc(){
+
+        return this.satdInstances;
+
+    }
 }

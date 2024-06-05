@@ -181,7 +181,7 @@ public class JavaParseUtil {
             JavaToken endToken = new JavaToken(range, 0, context, null, null);
 
             TokenRange tokenRange = new TokenRange(beginToken, endToken);
-            comments.add(new JavaLineComment(tokenRange, context));
+            comments.add(new JavaLineComment(tokenRange, context.replace("//","")));
             lineCount++;
         }
     }
@@ -197,7 +197,8 @@ public class JavaParseUtil {
         JavaToken endToken = new JavaToken(range, 0, text, null, null);
 
         TokenRange tokenRange = new TokenRange(beginToken, endToken);
-        comments.add(new JavaBlockComment(tokenRange, text));
+        comments.add(new JavaBlockComment(tokenRange, text.replace("/*","").replace("*/","").replace("*","")));
+
     }
 
 }

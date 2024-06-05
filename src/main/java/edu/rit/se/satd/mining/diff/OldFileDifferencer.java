@@ -89,6 +89,7 @@ public class OldFileDifferencer extends FileDifferencer {
                 );
                 break;
             case MODIFY:
+                checkoutCommit(this.newCommit.getName());
                 // get the edits to the file, and the deletions to the SATD we're concerned about
                 final List<Edit> editsToFile = this.getEdits(diffEntry);
                 final List<Edit> editsToSATDComment = editsToFile.stream()

@@ -59,6 +59,10 @@ public class GroupedComment implements Comparable {
     public static final String TYPE_JAVADOC = "JavaDoc";
     public static final String TYPE_UNKNOWN = "Unknown";
 
+
+    public String toString(){
+        return this.commentType+this.containingClass+this.containingClassDeclarationLineStart+this.containingClassDeclarationLineEnd+this.containingMethod+this.containingMethodDeclarationLineStart+this.containingMethodDeclarationLineEnd;
+    }
     /**
      * Merges this comment with another comment
      * @param other another comment

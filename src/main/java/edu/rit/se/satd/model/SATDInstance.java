@@ -52,7 +52,9 @@ public class SATDInstance {
     public int getEndLineNumberNewFile() {
         return this.newInstance.getComment().getEndLine();
     }
-
+    public String toString(){
+        return "newInstance:"+this.newInstance.toString()+"oldInstance:"+this.oldInstance.toString();
+    }
     public enum SATDResolution {
         FILE_REMOVED,
         FILE_PATH_CHANGED,

@@ -18,6 +18,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import tool.UseCaseOne;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -103,7 +104,7 @@ public class RepositoryCommitReference {
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_JAVADOC))
                                             .filter(gc ->
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
-                                            .filter(gc -> detector.isSATD(gc.getComment()))
+                                            .filter(gc -> UseCaseOne.runSATD(gc.getComment()))
                                             .collect(Collectors.toList()));
 
                         } catch (KnownParserException e) {

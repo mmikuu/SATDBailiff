@@ -30,7 +30,7 @@ public class CommitToCommitDiff {
         this.newCommit = newRepo.getCommit();
         this.diffEntries = GitUtil.getDiffEntries(this.gitInstance, oldRepo.getCommit(), this.newCommit)
                 .stream()
-                .filter(diffEntry -> diffEntry.getOldPath().endsWith(".java") || diffEntry.getNewPath().endsWith(".java"))
+                .filter(diffEntry -> diffEntry.getOldPath().endsWith(".java") || diffEntry.getNewPath().endsWith(".java") || diffEntry.getOldPath().endsWith(".cpp") || diffEntry.getNewPath().endsWith(".cpp"))
                 .collect(Collectors.toList());
         this.detector = detector;
     }

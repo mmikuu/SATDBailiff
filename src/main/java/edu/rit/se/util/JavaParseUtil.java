@@ -75,6 +75,12 @@ public class JavaParseUtil {
         }
 
 
+//        while (allComments.hasNext()) {
+//            System.out.println("================");
+//            GroupedComment comment = allComments.next();
+//            System.out.println(comment.getComment());
+//        }
+
 
 
         final List<GroupedComment> groupedComments = new ArrayList<>();
@@ -118,14 +124,15 @@ public class JavaParseUtil {
 
         try (JsonGenerator gen = new JsonFactory().createGenerator(new FileOutputStream("testOutput.json"))) {
 
-            String f = "repos/mmikuu/SampleTestForCheckSatd/"+fileName;
-//            String f = "repos/eclipse-jdt/eclipse.jdt.core/"+fileName;
+//            String f = "repos/mmikuu/CalcTestSatd/"+fileName;
+//            String f = "repos/satorukano/algorithm_template/"+fileName;
+            String f = "repos/eclipse-jdt/eclipse.jdt.core/"+fileName;
             String fileSplit[] = fileName.split("/");
             fileName = fileSplit[fileSplit.length-1];
 
             File Af = new File(f);//filepathに変更する必要あり
             gen.writeStartObject();
-            FileAnalyzer.extractComments(gen, Af.toPath(), fileName, FileType.JAVA);//java cpp 以外のファイルは解析されない
+            FileAnalyzer.extractComments(gen, Af.toPath(), fileName, FileType.getFileType(fileName));//java cpp 以外のファイルは解析されない
 
         }catch (IOException e) {
             throw new RuntimeException(e);

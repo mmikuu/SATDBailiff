@@ -13,6 +13,7 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.OrTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class GitUtil {
         try {
             treeWalk.addTree(commit.getTree());
             treeWalk.setRecursive(true);
-            treeWalk.setFilter(PathSuffixFilter.create(".java"));
+            treeWalk.setFilter(PathSuffixFilter.create(null));
         } catch (MissingObjectException | IncorrectObjectTypeException | CorruptObjectException e) {
             System.err.println("\nException in getting tree walker.");
             e.printStackTrace();

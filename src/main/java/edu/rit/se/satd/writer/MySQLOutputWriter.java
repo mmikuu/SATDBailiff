@@ -10,10 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -69,19 +66,57 @@ public class MySQLOutputWriter implements OutputWriter {
             }
             final String oldCommitId = this.getCommitId(conn, new CommitMetaData(diff.getOldCommit()), projectId);
             final String newCommitId = this.getCommitId(conn, new CommitMetaData(diff.getNewCommit()), projectId);
+            List<SATDInstance> col =  diff.getInstanc();
+//            col.forEach(instance -> {
+//                System.out.println("iiii");
+//                System.out.println("==========false==============");
+//                System.out.println(instance.getInstance(false).getGroupComment().getComment());
+//                System.out.println(instance.getInstance(false).getGroupComment().getLine());
+//                System.out.println(instance.getResolution());
+//                System.out.println("============true============");
+//                System.out.println(instance.getInstance(true).getGroupComment().getComment());
+//                System.out.println(instance.getInstance(true).getGroupComment().getLine());
+//                System.out.println(instance.getResolution());
+//            });
 
             // Now finish the remaining writes async and allow time for the previous writer to complete.
             final Connection asyncConn = conn;
             conn = null;
-            final Thread writeLastAsync = new Thread(() -> {
+            final Runnable writeLastAsync = () -> {
                 try {
-                    for (SATDInstance satdInstance : diff.getSatdInstances()) {
-                        final int oldFileId = this.getSATDInFileId(asyncConn, satdInstance, true);
-                        final int newFileId = this.getSATDInFileId(asyncConn, satdInstance, false);
-                        this.getSATDInstanceId(asyncConn, satdInstance, newCommitId, oldCommitId, newFileId, oldFileId, projectId);
-                    }
-                } catch (SQLException e) {
-                    throw new UncheckedIOException(new IOException(e));
+//                    System.out.println("thread in ");
+                    col.forEach(instance -> {
+//                        System.out.println("==========for-false==============");
+//                        System.out.println(instance.getInstance(false).getGroupComment().getComment());
+//                        System.out.println(instance.getInstance(false).getGroupComment().getLine());
+//                        System.out.println("==========for-true============");
+//                        System.out.println(instance.getInstance(true).getGroupComment().getComment());
+//                        System.out.println(instance.getInstance(true).getGroupComment().getLine());
+                        final int oldFileId;
+                        try {
+
+                            oldFileId = this.getSATDInFileId(asyncConn, instance, true);
+                            final int newFileId = this.getSATDInFileId(asyncConn, instance, false);
+                            this.getSATDInstanceId(asyncConn, instance, newCommitId, oldCommitId, newFileId, oldFileId, projectId);
+                        } catch (SQLException e) {
+                            System.out.println("errr");
+                            throw new RuntimeException(e);
+                        }
+                    });
+//                    for (SATDInstance satdInstance : diff.getInstanc()) {
+//
+//                        System.out.println("============for-false============");
+//                        System.out.println(satdInstance.getInstance(false).getGroupComment().getComment());
+//                        System.out.println(satdInstance.getInstance(false).getGroupComment().getLine());
+//                        System.out.println("============for-true============");
+//                        System.out.println(satdInstance.getInstance(true).getGroupComment().getComment());
+//                        System.out.println(satdInstance.getInstance(true).getGroupComment().getLine());
+//                        final int oldFileId = this.getSATDInFileId(asyncConn, satdInstance, true);
+//                        final int newFileId = this.getSATDInFileId(asyncConn, satdInstance, false);
+//                        this.getSATDInstanceId(asyncConn, satdInstance, newCommitId, oldCommitId, newFileId, oldFileId, projectId);
+//                    }
+                }catch(Exception e){
+                    System.out.println("------------------------------catch errorrrrrrrrrrr");
                 } finally {
                     try {
                         asyncConn.close();
@@ -89,7 +124,7 @@ public class MySQLOutputWriter implements OutputWriter {
                         System.err.println("Error closing SQL connection in thread");
                     }
                 }
-            });
+            };
             finalWriteExecutor.schedule(writeLastAsync, 100, TimeUnit.MILLISECONDS);
 
         } catch (SQLException e) {
@@ -286,10 +321,28 @@ public class MySQLOutputWriter implements OutputWriter {
         return str.substring(0, Math.min(str.length(), length));
     }
 
+//    @Override
+//    public void close() {
+//        // Shutdown the executor and then run each remaining task
+//        this.finalWriteExecutor.shutdownNow().forEach(Runnable::run);
+//    }
     @Override
     public void close() {
-        // Shutdown the executor and then run each remaining task
-        this.finalWriteExecutor.shutdownNow().forEach(Runnable::run);
+        System.out.println("Attempting graceful shutdown of finalWriteExecutor.");
+        finalWriteExecutor.shutdown();
+        try {
+            if (!finalWriteExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                System.out.println("Timed out waiting for executor termination.");
+                finalWriteExecutor.shutdownNow();
+                if (!finalWriteExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                    System.err.println("Executor did not terminate.");
+                }
+            }
+        } catch (InterruptedException ie) {
+            finalWriteExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+        System.out.println("FinalWriteExecutor shutdown complete.");
     }
 
 

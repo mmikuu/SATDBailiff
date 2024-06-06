@@ -108,7 +108,7 @@ public class SATDMiner {
      * @param commitRef a list of supplied diff references to be diffed for SATD
      * @param writer an OutputWriter that will handle the output of the miner
      */
-    public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer, int startNum, int endNum) {
+    public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer) {
         if( commitRef == null ) {
             System.out.println("erroです");
             this.status.setError();
@@ -118,12 +118,12 @@ public class SATDMiner {
 
         final List<DiffPair> allDiffPairs =  this.getAllDiffPairs(commitRef);
 
-        final List<DiffPair> validDiffPairs = getValidPairs(allDiffPairs,startNum,endNum);
+//        final List<DiffPair> validDiffPairs = getValidPairs(allDiffPairs,startNum,endNum);
 
         this.status.beginMiningSATD();
-        this.status.setNDiffsPromised(validDiffPairs.size());
+        this.status.setNDiffsPromised(allDiffPairs.size());
 
-        validDiffPairs.stream()
+        allDiffPairs.stream()
                 .map(pair -> new RepositoryDiffMiner(pair.parentRepo, pair.repo, this.satdDetector))
                 .map(repositoryDiffMiner -> {
                     this.status.setDisplayWindow(repositoryDiffMiner.getDiffString());
@@ -138,6 +138,15 @@ public class SATDMiner {
                 .map(this::mapInstancesInDiffToPriorInstances)
                 .forEach(diff -> {
                     try {
+//                        List<SATDInstance> col = diff.getInstanc();
+//                        col.forEach(instance -> {
+//                            System.out.println("========================");
+//                            System.out.println(instance.getInstance(false).getGroupComment().getComment());
+//                            System.out.println(instance.getInstance(false).getGroupComment().getLine());
+//                            System.out.println("========================");
+//                            System.out.println(instance.getInstance(true).getGroupComment().getComment());
+//                            System.out.println(instance.getInstance(true).getGroupComment().getLine());
+//                        });
                         writer.writeDiff(diff);
                         this.status.fulfilDiffPromise();
                     } catch (IOException e) {

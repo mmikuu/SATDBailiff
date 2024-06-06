@@ -22,8 +22,8 @@ public class Main {
     private static final String ARG_NAME_DB_PROPS = "d";
     private static final String ARG_NAME_REPOS_FILE = "r";
     private static final String ARG_NAME_GH_USERNAME = "u";
-    private static final String ARG_NAME_VALID_START_NUMBER = "s";
-    private static final String ARG_NAME_VALID_END_NUMBER = "f";
+//    private static final String ARG_NAME_VALID_START_NUMBER = "s";
+//    private static final String ARG_NAME_VALID_END_NUMBER = "f";
     private static final String ARG_NAME_GH_PASSWORD = "p";
     private static final String ARG_NAME_IGNORE_WORDS = "i";
     private static final String ARG_NAME_DIFF_ALGORITHM = "a";
@@ -50,8 +50,8 @@ public class Main {
             final String reposFile = cmd.getOptionValue(ARG_NAME_REPOS_FILE);
             final String dbPropsFile = cmd.getOptionValue(ARG_NAME_DB_PROPS);
 
-            final String startNum = cmd.getOptionValue(ARG_NAME_VALID_START_NUMBER);
-            final String endNum = cmd.getOptionValue(ARG_NAME_VALID_END_NUMBER);
+//            final String startNum = cmd.getOptionValue(ARG_NAME_VALID_START_NUMBER);
+//            final String endNum = cmd.getOptionValue(ARG_NAME_VALID_END_NUMBER);
 
             if( cmd.hasOption(ARG_NAME_IGNORE_WORDS) ) {
                 populateIgnoredWordsFile(cmd.getOptionValue(ARG_NAME_IGNORE_WORDS));
@@ -109,7 +109,7 @@ public class Main {
                     }
 
                     OutputWriter writer = new MySQLOutputWriter(dbPropsFile);
-                    miner.writeRepoSATD(miner.getBaseCommit(headCommit), writer, Integer.parseInt(startNum),Integer.parseInt(endNum));
+                    miner.writeRepoSATD(miner.getBaseCommit(headCommit), writer);
 
                     writer.close();
                     miner.cleanRepo();
@@ -133,20 +133,20 @@ public class Main {
                         .desc(".properties file containing database properties")
                         .required()
                         .build())
-                .addOption(Option.builder(ARG_NAME_VALID_START_NUMBER)
-                        .longOpt("startnum")
-                        .hasArg()
-                        .argName("STARTNUM")
-                        .desc(".diffpair's start number")
-                        .required()
-                        .build())
-                .addOption(Option.builder(ARG_NAME_VALID_END_NUMBER)
-                        .longOpt("endnum")
-                        .hasArg()
-                        .argName("ENDNUM")
-                        .desc(".diffpair's end number")
-                        .required()
-                        .build())
+//                .addOption(Option.builder(ARG_NAME_VALID_START_NUMBER)
+//                        .longOpt("startnum")
+//                        .hasArg()
+//                        .argName("STARTNUM")
+//                        .desc(".diffpair's start number")
+//                        .required()
+//                        .build())
+//                .addOption(Option.builder(ARG_NAME_VALID_END_NUMBER)
+//                        .longOpt("endnum")
+//                        .hasArg()
+//                        .argName("ENDNUM")
+//                        .desc(".diffpair's end number")
+//                        .required()
+//                        .build())
                 .addOption(Option.builder(ARG_NAME_REPOS_FILE)
                         .longOpt("repos")
                         .hasArg()

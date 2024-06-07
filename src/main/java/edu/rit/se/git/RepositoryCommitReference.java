@@ -19,6 +19,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import tool.UseCaseOne;
+import weka.classifiers.meta.FilteredClassifier;
+import java.io.File;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -40,6 +42,9 @@ public class RepositoryCommitReference {
     @Getter
     final private RevCommit commit;
 
+
+    public FilteredClassifier binaryClassifier;
+    public FilteredClassifier multiClassifier;
     /**
      * @return A list of the diff's parents
      */
@@ -74,15 +79,23 @@ public class RepositoryCommitReference {
      */
     public Map<String, RepositoryComments> getFilesToSATDOccurrences(
             SATDDetector detector, List<String> filesToSearch) throws GitAPIException, IOException {
-//        final TreeWalk thisRepoWalker = GitUtil.getTreeWalker(this.gitInstance, this.commit);
+        try {
+            getModel();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+//        if(this.commit == null){
+//            return null;
+//        }
+        final TreeWalk thisRepoWalker = GitUtil.getTreeWalker(this.gitInstance, this.commit);
         final Map<String, RepositoryComments> filesToSATDMap = new HashMap<>();
 //
-        final TreeWalk thisRepoWalker = new TreeWalk(this.gitInstance.getRepository());
+//        final TreeWalk thisRepoWalker = new TreeWalk(this.gitInstance.getRepository());
         String commitHash = this.commit.getName();
         checkoutCommit(commitHash);
 
-        thisRepoWalker.addTree(this.commit.getTree());
-        thisRepoWalker.setRecursive(true);
+//        thisRepoWalker.addTree(this.commit.getTree());
+//        thisRepoWalker.setRecursive(true);
 
         try {
             // Walk through each Java file in the repository at the time of the diff
@@ -104,7 +117,10 @@ public class RepositoryCommitReference {
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_JAVADOC))
                                             .filter(gc ->
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
-                                            .filter(gc -> UseCaseOne.runSATD(gc.getComment().replace("//","").replace("/*","").replace("*/","").replace("*","")))
+//                                            .filter(gc -> detector.isSATD(gc.getComment()))
+
+                                            .filter(gc -> UseCaseOne.runSATD( this.binaryClassifier,this.multiClassifier,gc.getComment().replace("//","").replace("/*","").replace("*/","").replace("*","")))
+                                            .peek(gc-> System.out.println(gc.getComment()))
 //                                            .peek(gc-> {
 //                                                System.out.println("========aaa===========");
 //                                                System.out.println(gc.getComment()+gc.getStartLine());
@@ -129,6 +145,7 @@ public class RepositoryCommitReference {
             System.err.println("IOException in getting tree walker.");
             e.printStackTrace();
         }
+
 
         return filesToSATDMap;
     }
@@ -164,4 +181,18 @@ public class RepositoryCommitReference {
                 .setName(commitHash)
                 .call();
     }
+
+    public void getModel() throws Exception {
+
+        File bFilePath = new File("model/DHbinaryClassifier.model");
+        File mFilePath = new File("model/DHmultiClassifier.model");
+
+        String absoluteBFilePath = bFilePath.getAbsolutePath();
+        String absoluteMFilePath = mFilePath.getAbsolutePath();
+
+
+        this.binaryClassifier = (FilteredClassifier) weka.core.SerializationHelper.read(absoluteBFilePath);
+        this.multiClassifier = (FilteredClassifier) weka.core.SerializationHelper.read(absoluteMFilePath);
+    }
 }
+

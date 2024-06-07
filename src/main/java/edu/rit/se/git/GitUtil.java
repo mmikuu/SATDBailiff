@@ -42,7 +42,7 @@ public class GitUtil {
         try {
             treeWalk.addTree(commit.getTree());
             treeWalk.setRecursive(true);
-            treeWalk.setFilter(PathSuffixFilter.create(null));
+            treeWalk.setFilter(null);
         } catch (MissingObjectException | IncorrectObjectTypeException | CorruptObjectException e) {
             System.err.println("\nException in getting tree walker.");
             e.printStackTrace();

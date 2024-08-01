@@ -125,10 +125,10 @@ public class JavaParseUtil {
         try (JsonGenerator gen = new JsonFactory().createGenerator(new FileOutputStream("testOutput.json"))) {
 
 //            String f = "repos/mmikuu/CalcTestSatd/"+fileName;
-//            String f = "repos/mmikuu/SampleTestForCheckSatd/"+fileName;
+            String f = "repos/mmikuu/SampleTestForCheckSatd/"+fileName;
 //            String f = "repos/satorukano/algorithm_template/"+fileName;
 //            String f = "repos/eclipse-jdt/eclipse.jdt.core/"+fileName;
-            String f = "repos/eclipse-platform/eclipse.platform.swt/"+fileName;
+//            String f = "repos/eclipse-platform/eclipse.platform.swt/"+fileName;
             // String f = "repos/eclipse-platform/eclipse.platform.ui/"+fileName;
 //            String f = "repos/mozilla/gecko-dev/"+fileName;
             String fileSplit[] = fileName.split("/");

@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: mysql_satd_d
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/x86_64
+    tty: true
+    ports:
+      - 3306:3306
+    env_file:
+      - ./.env_mysql
+    volumes:
+      - type: volume
+        source: mysql-data
+        target: /var/lib/mysql
+      - type: bind
+        source: ./init
+        target: /docker-entrypoint-initdb.d
+  phpmyadmin:
+    image: phpmyadmin
+    depends_on:
+      - db
+    ports:
+      - '127.0.0.1:8080:80'
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mussel.naist.jp
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=hoge
+
+volumes:
+  mysql-data:
+    name: mysql-volume-0408

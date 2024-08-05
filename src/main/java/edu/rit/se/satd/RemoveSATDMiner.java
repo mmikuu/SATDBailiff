@@ -75,53 +75,62 @@ public class RemoveSATDMiner {
         System.out.println("mapInstanceToNewInstanceIdとおった");
 
         for (SATDInstance satdInstance : satdInstances) {
-            System.out.println("resolution"+satdInstance.getResolution());
+            System.out.println("resolution" + satdInstance.getResolution());
             switch (satdInstance.getResolution()) {
-                case SATD_REMOVED: case FILE_REMOVED: case SATD_MOVED_FILE:
+                case SATD_REMOVED:
+                case FILE_REMOVED:
+                case SATD_MOVED_FILE:
                     System.out.println("REMOVE処理");
-                    int projectID = mappingDB.checkProjectID(diff.getProjectName(),diff.getProjectURI());
-                    String oldCommitId = mappingDB.getCommitId(new CommitMetaData(diff.getOldCommit()),projectID,false);
-                    String newCommitId = mappingDB.getCommitId(new CommitMetaData(diff.getNewCommit()),projectID,false);
+                    int projectID = mappingDB.checkProjectID(diff.getProjectName(), diff.getProjectURI());
+                    String oldCommitId = mappingDB.getCommitId(new CommitMetaData(diff.getOldCommit()), projectID, false);
+                    String newCommitId = mappingDB.getCommitId(new CommitMetaData(diff.getNewCommit()), projectID, false);
                     //並列化がうまく行っているか確認するため，
-                    System.out.println("oldCommitId"+oldCommitId);
-                    System.out.println("newCommitId"+newCommitId);
+                    System.out.println("oldCommitId" + oldCommitId);
+                    System.out.println("newCommitId" + newCommitId);
 
                     SATDInstanceInFile oldInstanceInfile = satdInstance.getOldInstance();
                     int oldInstanceHashcode = oldInstanceInfile.hashCode();
                     String instanceId = null;
-
-                    if ( mappingDB.checkInstanceID(oldInstanceHashcode) == null ){
-                        instanceId = mappingDB.checkInstanceID(oldInstanceHashcode);
-                        int newFileId = mappingDB.getSATDInFileId(satdInstance,false,oldInstanceHashcode,false);
-                        int oldFileId = mappingDB.getSATDInFileId(satdInstance,true,oldInstanceHashcode,false);
-                        mappingDB.getSATDInstanceId(satdInstance,newCommitId,oldCommitId,newFileId,oldFileId,projectID,instanceId,oldInstanceHashcode);
-
-                    } else {
-                        if( satdInstance.getResolution().equals(SATDInstance.SATDResolution.SATD_MOVED_FILE)){
-                            instanceId = null;
-                            int newFileId = mappingDB.getSATDInFileId(satdInstance,false,oldInstanceHashcode,false);
-                            int oldFileId = mappingDB.getSATDInFileId(satdInstance,true,oldInstanceHashcode,false);
-                            mappingDB.getSATDInstanceId(satdInstance,newCommitId,oldCommitId,newFileId,oldFileId,projectID,instanceId,oldInstanceHashcode);
-                        }else{ // SATD_REMOVEDの処理
+                    try {
+                        if (mappingDB.checkInstanceID(oldInstanceHashcode) == null) {
                             instanceId = mappingDB.checkInstanceID(oldInstanceHashcode);
-                            int newFileId = mappingDB.getSATDInFileId(satdInstance,false,oldInstanceHashcode,false);
-                            int oldFileId = mappingDB.getSATDInFileId(satdInstance,true,oldInstanceHashcode,false);
-                            mappingDB.getSATDInstanceId(satdInstance,newCommitId,oldCommitId,newFileId,oldFileId,projectID,instanceId,oldInstanceHashcode);
-                        }
-                        if (isErrorOutputEnabled()) {
-                            System.err.println("\nMultiple SATD_Delete instances for " +
-                                    satdInstance.getOldInstance().toString());
-                        }
-                        this.status.addErrorEncountered();
-                    }
-//                    satdInstance.setId(Integer.parseInt(instanceId));
-                    break;
-            }
-        }
-    }
+                            int newFileId = mappingDB.getSATDInFileId(satdInstance, false, oldInstanceHashcode, false);
+                            int oldFileId = mappingDB.getSATDInFileId(satdInstance, true, oldInstanceHashcode, false);
+                            mappingDB.getSATDInstanceId(satdInstance, newCommitId, oldCommitId, newFileId, oldFileId, projectID, instanceId, oldInstanceHashcode);
 
-    private int getNewSATDId() {
-        return ++this.curSATDId;
+                        } else {
+                            if (satdInstance.getResolution().equals(SATDInstance.SATDResolution.SATD_MOVED_FILE)) {
+                                instanceId = null;
+                                int newFileId = mappingDB.getSATDInFileId(satdInstance, false, oldInstanceHashcode, false);
+                                int oldFileId = mappingDB.getSATDInFileId(satdInstance, true, oldInstanceHashcode, false);
+                                mappingDB.getSATDInstanceId(satdInstance, newCommitId, oldCommitId, newFileId, oldFileId, projectID, instanceId, oldInstanceHashcode);
+                            } else { // SATD_REMOVEDの処理
+                                instanceId = mappingDB.checkInstanceID(oldInstanceHashcode);
+                                int newFileId = mappingDB.getSATDInFileId(satdInstance, false, oldInstanceHashcode, false);
+                                int oldFileId = mappingDB.getSATDInFileId(satdInstance, true, oldInstanceHashcode, false);
+                                mappingDB.getSATDInstanceId(satdInstance, newCommitId, oldCommitId, newFileId, oldFileId, projectID, instanceId, oldInstanceHashcode);
+                            }
+                        }
+                    } catch (NullPointerException e) {
+                        System.err.println("NullPointerException encountered:");
+                        System.err.println("satdInstance: " + satdInstance);
+                        System.err.println("newCommitId: " + newCommitId);
+                        System.err.println("oldCommitId: " + oldCommitId);
+                        System.err.println("projectID: " + projectID);
+                        System.err.println("instanceId: " + instanceId);
+                        System.err.println("oldInstanceHashcode: " + oldInstanceHashcode);
+                        e.printStackTrace();
+                        throw e;
+                    }
+
+                    if (isErrorOutputEnabled()) {
+                        System.err.println("\nMultiple SATD_Delete instances for " +
+                                satdInstance.getOldInstance().toString());
+                    }
+            }
+//                    satdInstance.setId(Integer.parseInt(instanceId));
+            break;
+        }
     }
 
     @RequiredArgsConstructor

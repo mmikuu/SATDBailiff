@@ -237,7 +237,7 @@ public class SATDInstanceMappingDB {
     }
 
 
-    public int writeWaitChange(int parent_hashcode, String resolution, String newCommitId, String oldCommitId, int newFileId, int oldFileId, int p_id) throws SQLException {
+    public int writeWaitChange(int parent_hashcode, int new_hash_code,String resolution, String newCommitId, String oldCommitId, int newFileId, int oldFileId, int p_id) throws SQLException {
 
         final PreparedStatement queryStmt = this.conn.prepareStatement(
                 "SELECT WaitChange.wait_id FROM WaitChange WHERE WaitChange.parent_hashcode=? AND " +
@@ -254,17 +254,18 @@ public class SATDInstanceMappingDB {
         } else {
             // Otherwise, add it and then return the newly generated key
             final PreparedStatement updateStmt = this.conn.prepareStatement(
-                    "INSERT INTO WaitChange(parent_hashcode, resolution, newCommitId, oldCommitId, " +
+                    "INSERT INTO WaitChange(parent_hashcode, new_hash_code,resolution, newCommitId, oldCommitId, " +
                             "newFileId, oldFileId, p_id) " +
-                            "VALUES (?,?,?,?,?,?,?)",
+                            "VALUES (?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             updateStmt.setInt(1, parent_hashcode); // first_commit
-            updateStmt.setString(2, resolution); // second_commit
-            updateStmt.setString(3, newCommitId); // first_file
-            updateStmt.setString(4, oldCommitId); // second_file
-            updateStmt.setInt(5, newFileId);// resolution
-            updateStmt.setInt(6, oldFileId); // satd_instance_id
-            updateStmt.setInt(7, p_id); // p_id
+            updateStmt.setInt(2, new_hash_code); // first_commit
+            updateStmt.setString(3, resolution); // second_commit
+            updateStmt.setString(4, newCommitId); // first_file
+            updateStmt.setString(5, oldCommitId); // second_file
+            updateStmt.setInt(6, newFileId);// resolution
+            updateStmt.setInt(7, oldFileId); // satd_instance_id
+            updateStmt.setInt(8, p_id); // p_id
             updateStmt.executeUpdate();
             final ResultSet updateRes = updateStmt.getGeneratedKeys();
             if (updateRes.next()) {

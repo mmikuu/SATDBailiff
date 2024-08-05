@@ -93,12 +93,10 @@ public class AddSATDMiner {
                             System.err.println("\nMultiple SATD_ADDED instances for " +
                                     satdInstance.getOldInstance().toString());
                         }
-                        this.status.addErrorEncountered();
                     }
-//                    satdInstance.setId(Integer.parseInt(instanceId));
+                    //                    satdInstance.setId(Integer.parseInt(instanceId));
                     break;
             }
         }
     }
-
 }

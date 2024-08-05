@@ -6,7 +6,9 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
@@ -64,32 +66,41 @@ public class RepositoryInitializer {
      * 2. Sets the remote reference for the repository
      * @return True if the initialization was successful, else False
      */
-    public boolean initRepo() {
+    public boolean initRepo() throws IOException, GitAPIException {
         final File newGitRepo = new File(this.repoDir);
-        if( newGitRepo.exists() ) {
-            this.cleanRepo();
+
+        if (newGitRepo.exists()) {
+            // リポジトリが存在する場合、既存のリポジトリを開く
+            openExistingRepository(newGitRepo);
+        } else {
+            // リポジトリが存在しない場合、クローンを実行
+            cloneRepository(newGitRepo);
         }
-        newGitRepo.mkdirs();
-        try {
-            // Clone an instance of the repository locally
-            this.repoRef = Git.cloneRepository()
-                    .setCredentialsProvider(new UsernamePasswordCredentialsProvider(this.gitUsername, this.gitPassword))
-                    .setURI(this.gitURI)
-                    .setDirectory(newGitRepo)
-                    .setCloneAllBranches(false)
-                    .call();
-            // Add a remote instance to the repository (to be used for tag listing)
-            this.repoRef.getRepository().getConfig().setString(REMOTE, ORIGIN, URL, this.gitURI);
-            this.repoRef.getRepository().getConfig().save();
-            this.gitDidInit = true;
-        } catch (GitAPIException e) {
-            System.err.println("\nGit API error in git init: " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            System.err.println("\nIOException when setting remote in gew repo.");
-        }
+        this.gitDidInit = true;
         return this.gitDidInit;
     }
 
+    private void openExistingRepository(File repoDir) throws IOException {
+        FileRepositoryBuilder builder = new FileRepositoryBuilder();
+        Repository repository = builder.setGitDir(new File(repoDir, ".git"))
+                .readEnvironment()
+                .findGitDir()
+                .build();
+        this.repoRef = new Git(repository);
+    }
+
+    private void cloneRepository(File repoDir) throws GitAPIException, IOException {
+        repoDir.mkdirs();
+        this.repoRef = Git.cloneRepository()
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(this.gitUsername, this.gitPassword))
+                .setURI(this.gitURI)
+                .setDirectory(repoDir)
+                .setCloneAllBranches(false)
+                .call();
+        // リモートインスタンスをリポジトリに追加（タグのリスト表示に使用）
+        this.repoRef.getRepository().getConfig().setString(REMOTE, ORIGIN, URL, this.gitURI);
+        this.repoRef.getRepository().getConfig().save();
+    }
     /**
      * Gets a diff reference for the most recent diff or the one at the given head
      * @param head a string representing a hash or tag to use as a head

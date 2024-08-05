@@ -83,7 +83,10 @@ public class ChangeSATDMiner {
                     int projectID = mappingDB.checkProjectID(diff.getProjectName(),diff.getProjectURI());
 
                     SATDInstanceInFile oldInstanceInfile = satdInstance.getOldInstance();
+                    SATDInstanceInFile newInstanceInfile = satdInstance.getNewInstance();
+
                     int oldInstanceHashcode = oldInstanceInfile.hashCode();
+                    int newInstanceHashcode = newInstanceInfile.hashCode();
                     String instanceId = null;
 
                     if ( mappingDB.checkInstanceID(oldInstanceHashcode) == null ){
@@ -106,7 +109,7 @@ public class ChangeSATDMiner {
 
                         //TODO writeWaitChangeのDBからwaitCommit,waitSATD,waitSATDInFIleが参照できるか確認すること
                         String resolution = String.valueOf(satdInstance.getResolution());
-                        mappingDB.writeWaitChange(oldInstanceHashcode,resolution,newCommitId,oldCommitId,newFileId,oldFileId,projectID);
+                        mappingDB.writeWaitChange(oldInstanceHashcode,newInstanceHashcode,resolution,newCommitId,oldCommitId,newFileId,oldFileId,projectID);
 
                     } else {
                         //nullではないinstanceIdが入っている
@@ -126,7 +129,6 @@ public class ChangeSATDMiner {
                             System.err.println("\nMultiple SATD_CHANGE instances for " +
                                     satdInstance.getOldInstance().toString());
                         }
-                        this.status.addErrorEncountered();
                     }
                     break;
             }

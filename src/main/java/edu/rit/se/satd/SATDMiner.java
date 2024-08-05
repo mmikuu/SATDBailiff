@@ -206,6 +206,16 @@ public class SATDMiner {
      * @param diff an SATDDifference object
      * @return the SATDDifference object
      */
+//    private SATDDifference mapInstancesInDiffToPriorInstances(SATDDifference diff) {
+//        return diff.usingNewInstances(
+//                diff.getSatdInstances().stream()
+//                        .distinct()
+//                        .map(this::mapInstanceToNewInstanceId)
+//                        .collect(Collectors.toList())
+//        );
+//    }
+
+
     private void mapInstanceToNewInstanceId(SATDDifference diff, String typo) throws SQLException, IOException {
         //switch こまんど何何がADDEDだった場合
         switch (typo) {

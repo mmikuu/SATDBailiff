@@ -75,7 +75,7 @@ public class SATDMiner {
         errorOutputEnabled = false;
     }
 
-    public RepositoryCommitReference getBaseCommit(String head) {
+    public RepositoryCommitReference getBaseCommit(String head) throws GitAPIException, IOException {
         this.timer.start();
         this.status.beginInitialization();
         if( (repo == null || !repo.didInitialize()) &&

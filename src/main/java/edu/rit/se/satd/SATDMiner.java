@@ -162,7 +162,7 @@ public class SATDMiner {
 
     }
 
-    private boolean initializeRepo(String username, String password) {
+    private boolean initializeRepo(String username, String password) throws GitAPIException, IOException {
         this.repo = ( username != null && password != null ) ?
                 new RepositoryInitializer(this.repositoryURI, GitUtil.getRepoNameFromGithubURI(this.repositoryURI),
                         username, password):

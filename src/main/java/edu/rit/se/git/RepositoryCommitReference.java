@@ -78,7 +78,7 @@ public class RepositoryCommitReference {
      * @return a mapping of files to the SATD Occurrences in each of those files
      */
     public Map<String, RepositoryComments> getFilesToSATDOccurrences(
-            SATDDetector detector, List<String> filesToSearch) throws GitAPIException, IOException {
+            SATDDetector detector, List<String> filesToSearch,String aimDir) throws GitAPIException, IOException {
         try {
             getModel();
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class RepositoryCommitReference {
                         final RepositoryComments comments = new RepositoryComments();
                         try {
                             comments.addComments(
-                                    JavaParseUtil.parseFileForComments(fileLoader.openStream(), curFileName).stream()
+                                    JavaParseUtil.parseFileForComments(fileLoader.openStream(), curFileName,aimDir).stream()
                                             // Ignore JavaDocs and Source Code
                                             .filter(gc ->
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_JAVADOC))

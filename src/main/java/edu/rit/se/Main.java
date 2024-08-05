@@ -22,6 +22,8 @@ public class Main {
     private static final String ARG_NAME_DB_PROPS = "d";
     private static final String ARG_NAME_REPOS_FILE = "r";
     private static final String ARG_NAME_GH_USERNAME = "u";
+
+    private static final String ARG_NAME_CLONE_DIRECTORY = "c";
     private static final String ARG_NAME_VALID_START_NUMBER = "s";
 
     private static final String ARG_NAME_VALID_Type = "t";
@@ -54,6 +56,7 @@ public class Main {
 
             final String startNum = cmd.getOptionValue(ARG_NAME_VALID_START_NUMBER);
             final String endNum = cmd.getOptionValue(ARG_NAME_VALID_END_NUMBER);
+            final String aimDir = cmd.getOptionValue(ARG_NAME_CLONE_DIRECTORY);
 
             final String type = cmd.getOptionValue(ARG_NAME_VALID_Type);
 
@@ -100,7 +103,7 @@ public class Main {
 
                 if( repoEntry.length > 0 ) {
 
-                    final SATDMiner miner = new SATDMiner(repoEntry[0], new SATDDetectorImpl());
+                    final SATDMiner miner = new SATDMiner(repoEntry[0], new SATDDetectorImpl(),aimDir);
 
                     final String headCommit = repoEntry.length > 1 ? repoEntry[1] : null;
 
@@ -113,10 +116,9 @@ public class Main {
                     }
 
                     OutputWriter writer = new MySQLOutputWriter(dbPropsFile);
-                    miner.writeRepoSATD(miner.getBaseCommit(headCommit), writer,Integer.parseInt(startNum),Integer.parseInt(endNum),type);
+                    miner.writeRepoSATD(miner.getBaseCommit(headCommit), writer,Integer.parseInt(startNum),Integer.parseInt(endNum),type,aimDir);
 
                     writer.close();
-                    miner.cleanRepo();
                 }
             }
         } catch (ParseException e) {
@@ -142,6 +144,13 @@ public class Main {
                         .hasArg()
                         .argName("TYPE")
                         .desc(".judge type satd")
+                        .required()
+                        .build())
+                .addOption(Option.builder(ARG_NAME_CLONE_DIRECTORY)
+                        .longOpt("cloneDirectory")
+                        .hasArg()
+                        .argName("ClONEDIR")
+                        .desc(".clone directory number")
                         .required()
                         .build())
                 .addOption(Option.builder(ARG_NAME_VALID_START_NUMBER)

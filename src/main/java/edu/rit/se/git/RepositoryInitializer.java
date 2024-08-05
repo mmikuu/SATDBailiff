@@ -28,7 +28,7 @@ public class RepositoryInitializer {
     private static final String GIT_PASSWORD = "p";
 
     // Program constants
-    private static final String REPO_OUT_DIR = "repos";
+    private static String REPO_OUT_DIR = "repos";
 
     // Constructor fields
     @Getter
@@ -48,12 +48,15 @@ public class RepositoryInitializer {
     // Prevents other functionality of the class from being used if the git init fails
     private Boolean gitDidInit = false;
 
-    public RepositoryInitializer(String uri, String baseName) {
+    public RepositoryInitializer(String uri, String baseName,String aimDir) {
+        this.REPO_OUT_DIR = this.REPO_OUT_DIR+aimDir;
         this.repoDir = String.join(File.separator, REPO_OUT_DIR, baseName);
         this.gitURI = uri;
+
     }
 
-    public RepositoryInitializer(String uri, String baseName, String gitUsername, String gitPassword) {
+    public RepositoryInitializer(String uri, String baseName, String gitUsername, String gitPassword,String aimDir) {
+        this.REPO_OUT_DIR = this.REPO_OUT_DIR+aimDir;
         this.repoDir = String.join(File.separator, REPO_OUT_DIR, baseName);
         this.gitURI = uri;
         this.gitUsername = gitUsername;
@@ -68,7 +71,6 @@ public class RepositoryInitializer {
      */
     public boolean initRepo() throws IOException, GitAPIException {
         final File newGitRepo = new File(this.repoDir);
-
         if (newGitRepo.exists()) {
             // リポジトリが存在する場合、既存のリポジトリを開く
             openExistingRepository(newGitRepo);

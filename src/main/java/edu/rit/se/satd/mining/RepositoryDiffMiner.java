@@ -30,6 +30,7 @@ public class RepositoryDiffMiner {
     private RepositoryCommitReference secondRepo;
     @NonNull
     private SATDDetector satdDetector;
+    private String aimDir;
 
     /**
      * Mines the differences in SATD between the two repositories set during generation
@@ -39,7 +40,7 @@ public class RepositoryDiffMiner {
      * @throws IllegalStateException thrown if the DiffMiner object has not been fully
      * configured before running
      */
-    public SATDDifference mineDiff() throws GitAPIException, IOException {
+    public SATDDifference mineDiff(String aimDir) throws GitAPIException, IOException {
         final SATDDifference diff = new SATDDifference(
                 this.secondRepo.getProjectName(),
                 this.secondRepo.getProjectURI(),
@@ -48,13 +49,13 @@ public class RepositoryDiffMiner {
 
         // Load the diffs between versions
         final CommitToCommitDiff cToCDiff = new CommitToCommitDiff(
-                this.firstRepo, this.secondRepo, this.satdDetector);
+                this.firstRepo, this.secondRepo, this.satdDetector,aimDir);
 
         // Get the SATD occurrences for each repo
         final Map<String, RepositoryComments> newerSATD = this.secondRepo.getFilesToSATDOccurrences(
-                this.satdDetector, cToCDiff.getModifiedFilesNew());
+                this.satdDetector, cToCDiff.getModifiedFilesNew(),aimDir);
         final Map<String, RepositoryComments> olderSATD = this.firstRepo.getFilesToSATDOccurrences(
-                this.satdDetector, cToCDiff.getModifiedFilesOld());
+                this.satdDetector, cToCDiff.getModifiedFilesOld(),aimDir);
 
         // Get a list of all SATD instances as a mappable instance
         final List<OldToNewCommentMapping> oldSATDMappings = olderSATD.keySet().stream()

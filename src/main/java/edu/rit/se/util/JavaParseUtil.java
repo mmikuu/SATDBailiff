@@ -11,6 +11,7 @@ import edu.rit.se.satd.comment.IgnorableWords;
 import edu.rit.se.satd.comment.model.GroupedComment;
 import jp.naist.se.commentlister.FileAnalyzer;
 import jp.naist.se.commentlister.reader.FileType;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +30,7 @@ public class JavaParseUtil {
      * @param file An input stream containing the contents of a java file to parse for comments
      * @return a list of grouped comments that correlate to comments from the parsed java file
      */
-    public static List<GroupedComment> parseFileForComments(InputStream file, String fileName) throws KnownParserException, IOException {
+    public static List<GroupedComment> parseFileForComments(InputStream file, String fileName,String aimDir) throws KnownParserException, IOException {
 //        final JavaParser parser = new JavaParser();
 //        final ParseResult parsedFile = parser.parse(file);
 //        if( !parsedFile.getProblems().isEmpty() ) {
@@ -57,7 +58,7 @@ public class JavaParseUtil {
             int lineComparison = Integer.compare(c1.getBegin().get().line, c2.getBegin().get().line);
             return lineComparison != 0 ? lineComparison : c1.getContent().compareTo(c2.getContent());
         });
-        jsonComment(fileName);
+        jsonComment(fileName,aimDir);
         readJson(comments,fileName);
 
         Iterator<GroupedComment> allComments = Collections.emptyIterator();
@@ -120,15 +121,15 @@ public class JavaParseUtil {
         return Math.max(range.begin.line, start) <= Math.min(range.end.line, end);
     }
 
-    public static void jsonComment(String fileName) {
+    public static void jsonComment(String fileName,String aimDir) {
 
         try (JsonGenerator gen = new JsonFactory().createGenerator(new FileOutputStream("testOutput.json"))) {
 
 //            String f = "repos/mmikuu/CalcTestSatd/"+fileName;
-//            String f = "repos/mmikuu/SampleTestForCheckSatd/"+fileName;
+//            String f = "repos"+aimDir+"/mmikuu/SampleTestForCheckSatd/"+fileName;
 //            String f = "repos/satorukano/algorithm_template/"+fileName;
 //            String f = "repos/eclipse-jdt/eclipse.jdt.core/"+fileName;
-            String f = "repos/eclipse-platform/eclipse.platform.swt/"+fileName;
+            String f = "repos"+aimDir+"/eclipse-platform/eclipse.platform.swt/"+fileName;
 //             String f = "repos/eclipse-platform/eclipse.platform.ui/"+fileName;
 //            String f = "repos/mozilla/gecko-dev/"+fileName;
             String fileSplit[] = fileName.split("/");

@@ -4,6 +4,7 @@ import edu.rit.se.git.DevNullCommitReference;
 import edu.rit.se.git.GitUtil;
 import edu.rit.se.git.RepositoryCommitReference;
 import edu.rit.se.git.RepositoryInitializer;
+import edu.rit.se.git.model.CommitMetaData;
 import edu.rit.se.satd.detector.SATDDetector;
 import edu.rit.se.satd.mining.RepositoryDiffMiner;
 import edu.rit.se.satd.mining.ui.ElapsedTimer;
@@ -12,6 +13,7 @@ import edu.rit.se.satd.model.SATDDifference;
 import edu.rit.se.satd.model.SATDInstance;
 import edu.rit.se.satd.model.SATDInstanceInFile;
 import edu.rit.se.satd.writer.OutputWriter;
+import jp.naist.se.commentlister.lexer.Python3Parser;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -50,21 +52,20 @@ public class SATDMiner {
     // Miner status for console output
     private MinerStatus status;
 
+    private String aimDir;
+
     private Map<SATDInstanceInFile, Integer> satdInstanceMappings = new HashMap<>();
 
     private ElapsedTimer timer = new ElapsedTimer();
 
-    private int curSATDId;
-
     @Getter
     private static boolean errorOutputEnabled = true;
 
-    public SATDMiner(String repositoryURI, SATDDetector satdDetector) {
+    public SATDMiner(String repositoryURI, SATDDetector satdDetector,String aimDir) {
         this.repositoryURI = repositoryURI;
         this.satdDetector = satdDetector;
         this.status = new MinerStatus(GitUtil.getRepoNameFromGithubURI(this.repositoryURI));
-        // Start the SATD ID incrementing on a unique value for each repository
-        this.curSATDId = this.repositoryURI.hashCode();
+        this.aimDir = aimDir;
     }
 
     public void disableStatusOutput() {
@@ -110,7 +111,7 @@ public class SATDMiner {
      * @param commitRef a list of supplied diff references to be diffed for SATD
      * @param writer an OutputWriter that will handle the output of the miner
      */
-    public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer,int startNum, int endNum, String typo) {
+    public void writeRepoSATD(RepositoryCommitReference commitRef, OutputWriter writer,int startNum, int endNum, String typo,String aimDir) {
         if( commitRef == null ) {
             System.out.println("erroです");
             this.status.setError();
@@ -130,7 +131,7 @@ public class SATDMiner {
                 .map(repositoryDiffMiner -> {
                     this.status.setDisplayWindow(repositoryDiffMiner.getDiffString());
                     try {
-                        return repositoryDiffMiner.mineDiff();
+                        return repositoryDiffMiner.mineDiff(aimDir);
                     } catch (GitAPIException e) {
                         throw new RuntimeException(e);
                     } catch (IOException e) {
@@ -140,6 +141,8 @@ public class SATDMiner {
 //                .map(this::mapInstancesInDiffToPriorInstances)
                 .forEach(diff -> {
                     try {
+                        CommitSATDMiner commit = new CommitSATDMiner();
+                        commit.mapInstanceToNewInstanceId(diff);
 //                        List<SATDInstance> col = diff.getInstanc();
 //                        col.forEach(instance -> {
 //                            System.out.println("========================");
@@ -165,8 +168,8 @@ public class SATDMiner {
     private boolean initializeRepo(String username, String password) throws GitAPIException, IOException {
         this.repo = ( username != null && password != null ) ?
                 new RepositoryInitializer(this.repositoryURI, GitUtil.getRepoNameFromGithubURI(this.repositoryURI),
-                        username, password):
-                new RepositoryInitializer(this.repositoryURI, GitUtil.getRepoNameFromGithubURI(this.repositoryURI));
+                        username, password,this.aimDir):
+                new RepositoryInitializer(this.repositoryURI, GitUtil.getRepoNameFromGithubURI(this.repositoryURI),this.aimDir);
         return this.repo.initRepo();
     }
 
@@ -231,6 +234,9 @@ public class SATDMiner {
                 RemoveSATDMiner remove = new RemoveSATDMiner();
                 remove.mapInstanceToNewInstanceId(diff);
                 break;
+            default:
+                CommitSATDMiner commit = new CommitSATDMiner();
+                commit.mapInstanceToNewInstanceId(diff);
         }
     }
 
@@ -276,6 +282,7 @@ public class SATDMiner {
     public List<DiffPair> getValidPairs(List<DiffPair> allDiffPairs ,int startNum ,int endNum){
         List<DiffPair> validPairs = new ArrayList<>();
         int times = 0;
+
          for (DiffPair diffPair : allDiffPairs) {
              if(startNum <= times && endNum >= times){
                  validPairs.add(diffPair);

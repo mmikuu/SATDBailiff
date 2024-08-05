@@ -37,12 +37,14 @@ public class OldFileDifferencer extends FileDifferencer {
     private Git gitInstance;
 
     private final List<DiffEntry> otherDiffEntries;
+    private String aimDir;
 
-    OldFileDifferencer(Git gitInstance, RevCommit newCommit, SATDDetector detector, List<DiffEntry> otherDiffEntries) {
+    OldFileDifferencer(Git gitInstance, RevCommit newCommit, SATDDetector detector, List<DiffEntry> otherDiffEntries,String aimDir) {
         super(gitInstance);
         this.gitInstance = gitInstance;
         this.newCommit = newCommit;
         this.detector = detector;
+        this.aimDir = aimDir;
         // Remove all entries that detail removed files --
         //   We won't need to look through these for changed comments
         this.otherDiffEntries = otherDiffEntries.stream()
@@ -198,7 +200,7 @@ public class OldFileDifferencer extends FileDifferencer {
     private RepositoryComments getCommentsInFileInNewRepository(String fileName) {
         final RepositoryComments comments = new RepositoryComments();
         try {
-            comments.addComments(JavaParseUtil.parseFileForComments(this.getFileContents(fileName), fileName));
+            comments.addComments(JavaParseUtil.parseFileForComments(this.getFileContents(fileName), fileName,this.aimDir));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (KnownParserException e) {

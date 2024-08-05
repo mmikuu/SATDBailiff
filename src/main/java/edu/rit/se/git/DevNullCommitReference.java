@@ -43,7 +43,7 @@ public class DevNullCommitReference extends RepositoryCommitReference {
 
     @Override
     public Map<String, RepositoryComments> getFilesToSATDOccurrences(
-            SATDDetector detector, List<String> filesToSearch) {
+            SATDDetector detector, List<String> filesToSearch,String aimDir) {
         return new HashMap<>();
     }
 

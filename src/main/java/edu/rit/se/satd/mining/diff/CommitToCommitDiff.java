@@ -22,12 +22,15 @@ public class CommitToCommitDiff {
     private final List<DiffEntry> diffEntries;
     private final SATDDetector detector;
 
+    private String aimDir;
+
     public static DiffAlgorithm diffAlgo = DiffAlgorithm.getAlgorithm(DiffAlgorithm.SupportedAlgorithm.MYERS);
 
     public CommitToCommitDiff(RepositoryCommitReference oldRepo,
-                              RepositoryCommitReference newRepo, SATDDetector detector) {
+                              RepositoryCommitReference newRepo, SATDDetector detector,String aimDir) {
         this.gitInstance = newRepo.getGitInstance();
         this.newCommit = newRepo.getCommit();
+        this.aimDir = aimDir;
         this.diffEntries = GitUtil.getDiffEntries(this.gitInstance, oldRepo.getCommit(), this.newCommit)
                 .stream()
                 .filter(diffEntry -> diffEntry.getOldPath().endsWith(".java") || diffEntry.getNewPath().endsWith(".java") || diffEntry.getOldPath().endsWith(".cpp") || diffEntry.getNewPath().endsWith(".cpp"))
@@ -49,7 +52,7 @@ public class CommitToCommitDiff {
 
     public List<SATDInstance> loadDiffsForOldFile(String oldFile, GroupedComment comment) {
         return this.loadDiffsForFile(oldFile, comment,
-                new OldFileDifferencer(this.gitInstance, this.newCommit, this.detector, this.diffEntries));
+                new OldFileDifferencer(this.gitInstance, this.newCommit, this.detector, this.diffEntries,this.aimDir));
 
     }
 

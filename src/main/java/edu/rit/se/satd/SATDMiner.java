@@ -84,6 +84,7 @@ public class SATDMiner {
             System.err.println("Repository failed to initialize");
             return null;
         }
+
         return this.repo.getMostRecentCommit(head);
     }
 
@@ -119,10 +120,14 @@ public class SATDMiner {
         }
         this.status.beginCalculatingDiffs();
 
+        System.out.println("commitRef"+commitRef);
+
         final List<DiffPair> allDiffPairs =  this.getAllDiffPairs(commitRef);
 
         final List<DiffPair> validDiffPairs = getValidPairs(allDiffPairs,startNum,endNum);
-
+        System.out.println("===========================");
+        System.out.println("validDiffPAIRS"+validDiffPairs.size());
+        System.out.println("===========================");
         this.status.beginMiningSATD();
         this.status.setNDiffsPromised(validDiffPairs.size());
 
@@ -285,6 +290,7 @@ public class SATDMiner {
 
          for (DiffPair diffPair : allDiffPairs) {
              if(startNum <= times && endNum >= times){
+                 System.out.println("===============");
                  validPairs.add(diffPair);
              }
              times = times+1;

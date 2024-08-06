@@ -23,7 +23,7 @@ public class Main {
     private static final String ARG_NAME_REPOS_FILE = "r";
     private static final String ARG_NAME_GH_USERNAME = "u";
 
-    private static final String ARG_NAME_CLONE_DIRECTORY = "c";
+    private static final String ARG_NAME_CLONE_DIRECTORY = "g";
     private static final String ARG_NAME_VALID_START_NUMBER = "s";
 
     private static final String ARG_NAME_VALID_Type = "t";
@@ -116,6 +116,7 @@ public class Main {
                     }
 
                     OutputWriter writer = new MySQLOutputWriter(dbPropsFile);
+
                     miner.writeRepoSATD(miner.getBaseCommit(headCommit), writer,Integer.parseInt(startNum),Integer.parseInt(endNum),type,aimDir);
 
                     writer.close();

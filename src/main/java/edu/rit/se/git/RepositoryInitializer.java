@@ -70,9 +70,10 @@ public class RepositoryInitializer {
      * @return True if the initialization was successful, else False
      */
     public boolean initRepo() throws IOException, GitAPIException {
-        final File newGitRepo = new File(this.repoDir);
+        final File newGitRepo = new File(this.repoDir).getAbsoluteFile();
+
         if (newGitRepo.exists()) {
-            // リポジトリが存在する場合、既存のリポジトリを開く
+            // リポジトリが存在する場合、既存のリポジトリを開くようになっている
             openExistingRepository(newGitRepo);
         } else {
             // リポジトリが存在しない場合、クローンを実行
@@ -84,11 +85,13 @@ public class RepositoryInitializer {
 
     private void openExistingRepository(File repoDir) throws IOException {
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
-        Repository repository = builder.setGitDir(new File(repoDir, ".git"))
+        Repository repository = builder.setGitDir(new File(repoDir, "/.git"))
                 .readEnvironment()
                 .findGitDir()
                 .build();
+//        System.out.println("Opened existing repository at: " + repository.getDirectory());
         this.repoRef = new Git(repository);
+        System.out.println("open at this.repoRef"+this.repoRef.hashCode());
     }
 
     private void cloneRepository(File repoDir) throws GitAPIException, IOException {
@@ -97,11 +100,13 @@ public class RepositoryInitializer {
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(this.gitUsername, this.gitPassword))
                 .setURI(this.gitURI)
                 .setDirectory(repoDir)
-                .setCloneAllBranches(false)
+                .setCloneAllBranches(true)
                 .call();
         // リモートインスタンスをリポジトリに追加（タグのリスト表示に使用）
+//        System.out.println("Cloned repository to: " + repoDir.getAbsolutePath());
         this.repoRef.getRepository().getConfig().setString(REMOTE, ORIGIN, URL, this.gitURI);
         this.repoRef.getRepository().getConfig().save();
+        System.out.println("Cloned at this.repoRef"+this.repoRef.hashCode());
     }
     /**
      * Gets a diff reference for the most recent diff or the one at the given head

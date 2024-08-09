@@ -120,7 +120,6 @@ public class RepositoryCommitReference {
 //                                            .filter(gc -> detector.isSATD(gc.getComment()))
 
                                             .filter(gc -> UseCaseOne.runSATD( this.binaryClassifier,this.multiClassifier,gc.getComment().replace("//","").replace("/*","").replace("*/","").replace("*","")))
-                                            .peek(gc-> System.out.println(gc.getComment()))
 //                                            .peek(gc-> {
 //                                                System.out.println("========aaa===========");
 //                                                System.out.println(gc.getComment()+gc.getStartLine());

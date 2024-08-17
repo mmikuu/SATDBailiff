@@ -33,9 +33,66 @@ public class CommitToCommitDiff {
         this.aimDir = aimDir;
         this.diffEntries = GitUtil.getDiffEntries(this.gitInstance, oldRepo.getCommit(), this.newCommit)
                 .stream()
-                .filter(diffEntry -> diffEntry.getOldPath().endsWith(".java") || diffEntry.getNewPath().endsWith(".java") || diffEntry.getOldPath().endsWith(".cpp") || diffEntry.getNewPath().endsWith(".cpp"))
+                .filter(diffEntry -> isRelevantFile(diffEntry))
                 .collect(Collectors.toList());
         this.detector = detector;
+    }
+
+    public boolean isRelevantFile(DiffEntry diffEntry){
+        return isJavaFile(diffEntry.getOldPath()) ||
+                isJavaFile(diffEntry.getNewPath()) ||
+                isCFile(diffEntry.getOldPath()) ||
+                isCFile(diffEntry.getNewPath()) ||
+                isEcmaFile(diffEntry.getOldPath()) ||
+                isEcmaFile(diffEntry.getNewPath()) ||
+                isPyFile(diffEntry.getOldPath()) ||
+                isPyFile(diffEntry.getNewPath()) ||
+                isPhpFile(diffEntry.getOldPath()) ||
+                isPhpFile(diffEntry.getNewPath()) ||
+                isRubyFile(diffEntry.getOldPath()) ||
+                isRubyFile(diffEntry.getNewPath()) ||
+                isCsharpFile(diffEntry.getOldPath()) ||
+                isCsharpFile(diffEntry.getNewPath());
+    }
+
+    private boolean isJavaFile(String path) {
+        return path != null && path.endsWith(".java");
+    }
+
+    private boolean isPyFile(String path) {
+        return path != null && path.endsWith(".py");
+    }
+
+    private boolean isPhpFile(String path) {
+        return path != null && path.endsWith(".php");
+    }
+
+    private boolean isCsharpFile(String path) {
+        return path != null && path.endsWith(".cs");
+    }
+
+    private boolean isRubyFile(String path) {
+        return path != null && path.endsWith(".rb");
+    }
+
+    private boolean isCFile(String path) {
+        if (path == null) {
+            return false;
+        }
+
+        String[] cppExtensions = {".c", ".cc", ".cp", ".cpp", ".cx", ".cxx", ".c+", ".c++",
+                ".h", ".hh", ".hxx", ".h+", ".h++", ".hp", ".hpp"};
+
+        for (String extension : cppExtensions) {
+            if (path.endsWith(extension)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEcmaFile(String path) {
+        return path != null && path.endsWith(".js");
     }
 
     public List<String> getModifiedFilesNew() {

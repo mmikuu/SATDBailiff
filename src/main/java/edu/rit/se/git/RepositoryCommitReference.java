@@ -119,7 +119,7 @@ public class RepositoryCommitReference {
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
 //                                            .filter(gc -> detector.isSATD(gc.getComment()))
 
-                                            .filter(gc -> UseCaseOne.runSATD( this.binaryClassifier,this.multiClassifier,gc.getComment().replace("//","").replace("/*","").replace("*/","").replace("*","")))
+                                            .filter(gc -> UseCaseOne.runSATD( this.binaryClassifier,this.multiClassifier,cleanComment(gc.getComment())))
                                             .peek(gc-> System.out.println(gc.getComment()))
 //                                            .peek(gc-> {
 //                                                System.out.println("========aaa===========");
@@ -148,6 +148,26 @@ public class RepositoryCommitReference {
 
 
         return filesToSATDMap;
+    }
+
+    private String cleanComment(String comment) {
+        comment = comment.trim();
+        if (comment.startsWith("//")) {
+            comment = comment.substring(2);
+        } else if (comment.startsWith("/*") && comment.endsWith("*/")) {
+            comment = comment.substring(2, comment.length() - 2).trim();
+            comment = comment.replace("*","");
+        } else if (comment.startsWith("*")) {
+            comment = comment.substring(1);
+        } else if (comment.startsWith("#")) {
+            comment = comment.substring(1);
+        }else if (comment.startsWith("<?php")){
+            comment = comment.replace("<?php","").replace("?>","");
+        }else if (comment.startsWith("=begin")){
+            comment = comment.replace("=begin","").replace("=end","");
+        }
+
+        return comment;
     }
 
     public String getCommitHash() {

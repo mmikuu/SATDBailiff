@@ -118,7 +118,6 @@ public class RepositoryCommitReference {
                                             .filter(gc ->
                                                     !gc.getCommentType().equals(GroupedComment.TYPE_COMMENTED_SOURCE))
 //                                            .filter(gc -> detector.isSATD(gc.getComment()))
-
                                             .filter(gc -> UseCaseOne.runSATD( this.binaryClassifier,this.multiClassifier,cleanComment(gc.getComment())))
                                             .peek(gc-> System.out.println(gc.getComment()))
 //                                            .peek(gc-> {

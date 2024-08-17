@@ -129,9 +129,9 @@ public class JavaParseUtil {
 //            String f = "repos"+aimDir+"/mmikuu/SampleTestForCheckSatd/"+fileName;
 //            String f = "repos/satorukano/algorithm_template/"+fileName;
 //            String f = "repos/eclipse-jdt/eclipse.jdt.core/"+fileName;
-            String f = "repos"+aimDir+"/eclipse-platform/eclipse.platform.swt/"+fileName;
+            String f = "repos"+aimDir+"/eclipse.platform.swt/"+fileName;
 //             String f = "repos/eclipse-platform/eclipse.platform.ui/"+fileName;
-//            String f = "repos/mozilla/gecko-dev/"+fileName;
+//            String f = "repos"+aimDir+"/gecko-dev/"+fileName;
             String fileSplit[] = fileName.split("/");
             fileName = fileSplit[fileSplit.length-1];
 

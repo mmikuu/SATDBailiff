@@ -50,6 +50,8 @@ public class RepositoryInitializer {
 
     public RepositoryInitializer(String uri, String baseName,String aimDir) {
         this.REPO_OUT_DIR = this.REPO_OUT_DIR+aimDir;
+        baseName = baseName.split("/")[1];
+        System.out.println("baseName"+baseName);
         this.repoDir = String.join(File.separator, REPO_OUT_DIR, baseName);
         this.gitURI = uri;
 
@@ -57,6 +59,8 @@ public class RepositoryInitializer {
 
     public RepositoryInitializer(String uri, String baseName, String gitUsername, String gitPassword,String aimDir) {
         this.REPO_OUT_DIR = this.REPO_OUT_DIR+aimDir;
+        baseName = baseName.split("/")[1];
+        System.out.println("baseName"+baseName);
         this.repoDir = String.join(File.separator, REPO_OUT_DIR, baseName);
         this.gitURI = uri;
         this.gitUsername = gitUsername;
@@ -70,8 +74,9 @@ public class RepositoryInitializer {
      * @return True if the initialization was successful, else False
      */
     public boolean initRepo() throws IOException, GitAPIException {
-        final File newGitRepo = new File(this.repoDir).getAbsoluteFile();
-
+        System.out.println("repoDir"+this.repoDir);
+        final File newGitRepo = new File(this.repoDir);
+        
         if (newGitRepo.exists()) {
             // リポジトリが存在する場合、既存のリポジトリを開くようになっている
             openExistingRepository(newGitRepo);
@@ -84,6 +89,7 @@ public class RepositoryInitializer {
     }
 
     private void openExistingRepository(File repoDir) throws IOException {
+        System.out.println("openした");
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         Repository repository = builder.setGitDir(new File(repoDir, "/.git"))
                 .readEnvironment()
@@ -95,6 +101,7 @@ public class RepositoryInitializer {
     }
 
     private void cloneRepository(File repoDir) throws GitAPIException, IOException {
+        System.out.println("cloneした");
         repoDir.mkdirs();
         this.repoRef = Git.cloneRepository()
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(this.gitUsername, this.gitPassword))
